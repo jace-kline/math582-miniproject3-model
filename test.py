@@ -97,7 +97,8 @@ def SVM(X, y, kernel_type='linear_kernel', C=10):
 	# Compute H matrix for P
 	H = np.matmul(y,y.T) * K * 1.
 
-	# Converting into cvxopt format - as previously
+	# Converting into cvxopt format using their matrix library
+    # All of this is just based off equations we discussed in class
 	P = cvxopt_matrix(H)
 	q = cvxopt_matrix(-np.ones((m, 1)))
 	G = cvxopt_matrix(np.vstack((np.eye(m)*-1,np.eye(m))))
