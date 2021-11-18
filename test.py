@@ -121,6 +121,44 @@ def SVM(X, y, kernel_type='linear_kernel', C=10):
 	return w, b, alphas
 
 
+def graph():
+	# Graph our resulting problem
+	# https://medium.com/geekculture/svm-classification-with-sklearn-svm-svc-how-to-plot-a-decision-boundary-with-margins-in-2d-space-7232cb3962c0
+	plt.figure(figsize=(8, 8))
+	# Constructing a hyperplane using a formula.
+	x_points = np.linspace(-1, 1)    # generating x-points from -1 to 1
+	y_points = -(w[0] / w[1]) * x_points - b[0] / w[1]  # getting corresponding y-points
+	# Plotting a red hyperplane
+	colors = ["steelblue", "orange"]
+	plt.scatter(X[:, 0], X[:, 1], c=y.ravel(), alpha=0.5, cmap=matplotlib.colors.ListedColormap(colors), edgecolors="black", zorder=2,)
+	plt.plot(x_points, y_points, zorder=1, c='r');
+
+	plt.show()
+
+
+def project(w, b, X_pred):
+	"""
+	project projects our prediciton matrix using our weight and bias values
+	w: weight matrix
+	b: bias value
+	X_pred: Matrix to make the prediction from
+	:return: Makes a binary classification based off what is brought in from the X_pred matrix
+	"""
+	if w is not None:
+		return np.dot(X_pred, w) + b
+
+
+def predict(w, b, X_pred):
+	"""
+	predict function will take in a test dataset and return a -1 or 1 depending on the y pred
+	w: weight matrix
+	b: bias value
+	X_pred: Matrix to make the prediction from
+	:return: Makes a binary classification based off what is brought in from the X_pred matrix
+	"""
+
+	return np.sign(project(w, b, X_pred))
+
 # Read in our training data from a CSV using pandas
 df = pd.read_csv('./data/test-data/test_data.csv', encoding='utf8')
 df["success"] = df[["success"]].replace(0,-1)
@@ -135,7 +173,7 @@ X = X.to_numpy()
 y = y.to_numpy()
 
 # Calculate our weight bias and alphas using our SVM function
-w, b, alphas = SVM(X, y)
+w, b, alphas = SVM(X, y, kernel_type="polynomial_kernel")
 
 # Display results
 print("------------------- FROM OUR CALCULATIONS -----------------------")
@@ -145,22 +183,11 @@ print('b = ', b)
 
 # Here, we look at the SVM calculations for a sanity check
 print("------------------- FROM SVM CALCULATIONS -----------------------")
-clf = SVC(C = 10, kernel = 'linear')
+clf = SVC(C = 10, kernel = 'poly')
 clf.fit(X, y.ravel()) 
 w_svm=clf.coef_[0]
 b_svm=clf.intercept_
 print("w = ",w_svm) 
 print("b = ",b_svm)
 
-# Graph our resulting problem
-# https://medium.com/geekculture/svm-classification-with-sklearn-svm-svc-how-to-plot-a-decision-boundary-with-margins-in-2d-space-7232cb3962c0
-plt.figure(figsize=(8, 8))
-# Constructing a hyperplane using a formula.
-x_points = np.linspace(-1, 1)    # generating x-points from -1 to 1
-y_points = -(w[0] / w[1]) * x_points - b[0] / w[1]  # getting corresponding y-points
-# Plotting a red hyperplane
-colors = ["steelblue", "orange"]
-plt.scatter(X[:, 0], X[:, 1], c=y.ravel(), alpha=0.5, cmap=matplotlib.colors.ListedColormap(colors), edgecolors="black", zorder=2,)
-plt.plot(x_points, y_points, zorder=1, c='r');
-
-plt.show()
+print(predict(w, b, [[30.295138369778076,62.901112886193246]]))
