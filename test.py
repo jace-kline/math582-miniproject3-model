@@ -88,15 +88,16 @@ def SVM(X, y, kernel_type='linear_kernel', C=10):
 	m, _ = X.shape
 
 	# Make sure y values are floats and within -1 == y == 1
+    # This is the proper format that should be used in CVX opt
 	y = y.reshape(-1,1) * 1.
 
 	# Calculate our kernel
 	K = build_k(X, kernel_type=kernel_type)
 
-	# Compute 
+	# Compute H matrix for P
 	H = np.matmul(y,y.T) * K * 1.
 
-	#Converting into cvxopt format - as previously
+	# Converting into cvxopt format - as previously
 	P = cvxopt_matrix(H)
 	q = cvxopt_matrix(-np.ones((m, 1)))
 	G = cvxopt_matrix(np.vstack((np.eye(m)*-1,np.eye(m))))
@@ -104,7 +105,7 @@ def SVM(X, y, kernel_type='linear_kernel', C=10):
 	A = cvxopt_matrix(y.reshape(1, -1))
 	b = cvxopt_matrix(np.zeros(1))
 
-	#Run solver
+	# Run solver using SVXopt quad prog
 	sol = cvxopt_solvers.qp(P, q, G, h, A, b)
 	alphas = np.array(sol['x'])
 
